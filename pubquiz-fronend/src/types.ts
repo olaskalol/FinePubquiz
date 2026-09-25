@@ -16,7 +16,7 @@ export interface Question{
 }
 // jest szansa ze trzea bedzie obciac pola teams i questiotns zeby szybciej to skonczyc ale po bożemu powinno sie je podpinać
 export interface GameSession{
-    id:number;
+    name: string;
     teams: Team[];
     questions: Question[];
     currentQuestionIndex: number;

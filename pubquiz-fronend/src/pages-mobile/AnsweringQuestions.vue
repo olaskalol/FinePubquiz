@@ -1,4 +1,9 @@
-// przenosi tu po stworzeniu druzyny jak do kahoota klikanie odpowiedzi jeszcze nie wymyslilam jak pobierać same odpowiedzi 
+!--klikanie w pytania na telefonie drużyn
+To do:
+- muszą być przekazywane same pytania bez odpowiedzi
+- zapisywanie wybranych odpowwiedzi
+
+-->
 <script setup lang="ts">
   import type {Question} from '../types';
   import {ref} from 'vue';

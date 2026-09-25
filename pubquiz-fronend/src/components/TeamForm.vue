@@ -1,10 +1,18 @@
+!--tworzenie drużyn
+To do:
+- drużyny muszą mieć osobne strony dla każdej osoby, która odczyta kod qr
+- guzik do kliknięcia dołącz albo automatyczne dodawanie i aktulizacja za każdym razem gdy jest nowym człowiek
+- jeśli guzik po dołączeniu powinna być informacja że się dołączyło
+-->
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import type { Team } from '../types';
 
+const API_URL_TEAMS = import.meta.env.VITE_API_URL_TEAMS;
 const memberName = ref('');
 const teamName = ref('');
 const Teams = ref<Team[]>([]);
+const isTeamCreated = ref(false);
 
 function createTeam() {
   if (!teamName.value.trim()) {
@@ -13,61 +21,103 @@ function createTeam() {
   }
   const chosenTeam = {
     name: teamName.value.trim(),
-    people: [],
+    members: [],
+    answers: [],
+    points: 0,
   };
+  return chosenTeam;
 }
+
+async function addTeam() {
+  const team = createTeam();
+  if (!team) return;
+
+  try {
+    const response = await fetch(API_URL_TEAMS, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(team)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to add team');
+    }
+    
+    const data = await response.json();
+    console.log('Team added:', data);
+    
+    Teams.value.push(team);
+    isTeamCreated.value = true; 
+    
+  } catch (error) {
+    console.error('Error adding team:', error);
+  }
+}
+async function updateTeamMembers(team: Team) {
+  try {
+    const response = await fetch(API_URL_TEAMS, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(team)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update team members');
+    }
+    console.log('Zaktualizowano drużynę w bazie!');
+  } catch (error) {
+    console.error('Error updating team:', error);
+  }
+}
+
 function addMember() {
   if (!memberName.value.trim()) {
     alert('Wpisz imię członka drużyny');
     return;
   }
+  
   const newMember = memberName.value.trim();
-  const team = Teams.value.find((team: Team) => team.name === teamName.value);
+  const team = Teams.value.find((t: Team) => t.name === teamName.value.trim());
+  
   if (team) {
     team.members.push(newMember);
     memberName.value = '';
+    
+    updateTeamMembers(team);
   } else {
     alert('Drużyna nie istnieje');
   }
 }
 
-async function fetchTeams() {
-  try {
-    //ZMIENIC URL NA ADRES BACKENDU Z ENV
-    const response = await fetch('http://localhost:8000/teams');
-    if (!response.ok) {
-      throw new Error('Failed to fetch teams');
-    }
-    const data = await response.json();
-    Teams.value = data;
-    console.log('Fetched teams:', data);
-  } catch (error) {
-    console.error('Error fetching teams:', error);
-  }
-}
-
-onMounted(() => {
-  fetchTeams();
-});
-
 </script>
 
 <template>
-  <div class="create-team">
+  <div v-if="!isTeamCreated" class="create-team">
     <h1>Dodaj nazwę drużyny</h1>
-    <form @submit.prevent="createTeam">
+    <form @submit.prevent="addTeam">
         <label for="teamName">Team Name:</label>
         <input type="text" id="teamName" v-model="teamName" required />
       <button type="submit">Stwórz Drużynę</button>
     </form>
   </div>
-  <div class="add-members">
-    <h1>{teamName}</h1>
+  <div v-else class="add-members">
+    <h1>{{ teamName }}</h1>
     <h2>Dodaj członków drużyny</h2>
     <form @submit.prevent="addMember">
       <label for="memberName">Member Name:</label>
       <input type="text" id="memberName" v-model="memberName" required />
       <button type="submit">Add Member</button>
     </form>
+    <ul v-if="Teams.length !== 0">
+      <li v-for="member in Teams.find(t => t.name === teamName)?.members" :key="member">
+        {{ member }}
+      </li>
+    </ul>
   </div>
 </template>
+
+

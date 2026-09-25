@@ -1,3 +1,7 @@
+!--Pokazywanie drużyn zależnie od tego czy mają jakies punkty to pokazują się też ich punkty
+To do:
+- trzeba pomyśleć w których miejscach powinien być ten komponent (przed rozpoczęciem rozgrywnik/na ekranie które drużyny odpowiedziały/przy wynikach)
+-->
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import type { Team } from '../types';

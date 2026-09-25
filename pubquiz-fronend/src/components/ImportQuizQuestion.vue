@@ -1,3 +1,9 @@
+!--Import pytań do quizu
+To do:
+- decyzja nad tym jak będą zaciągane pytania do konkretnej sesji gry
+- jeśli to bedzię lepsze to zrobienie dwóch kolekcji jedna która ma pytania i odpowiedzi i druga gdzie są prawidłowe 
+-->
+
 <script setup lang="ts">
 import {ref} from 'vue';
 
@@ -21,7 +27,7 @@ async function importQuiz(){
 
         const res = await fetch(API_URL_QUESTIONS, {
             method: "POST",
-            body: formData, // Wysyłamy FormData zamiast samego selectedFile.value
+            body: formData,
         });
         if(!res.ok){
             throw new Error("Failed to import quiz");

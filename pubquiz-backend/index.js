@@ -1,10 +1,11 @@
+require('dotenv').config();
+const uri = process.env.MONGODB_URI;
 const express= require('express')
 const cors = require('cors')
 const excelToJson = require('convert-excel-to-json')
 const multer = require('multer');
 const {MongoClient, ServerApiVersion,ObjectId} = require('mongodb')
 
-const uri = VITE_MONGODB_URI;
 
 const app = express();
 app.use(cors())
@@ -35,6 +36,7 @@ async function run(){
         const database=client.db("pubquiz_db")
         const teams= database.collection("teams")
         const questions = database.collection("questions")
+        const game_session = database.collection('game_session')
         await listDatabases(client)
 
         app.listen(3001,()=>{
@@ -46,7 +48,7 @@ async function run(){
           res.json({message: "backend?? its working!!"})
         });
         //pobieranie pytan
-        app.get('/host/question', async(req,res)=>{
+        app.get('/host/questions', async(req,res)=>{
             try{
                 const data = await questions.find({}).toArray();
                 res.status(200).json(data);
@@ -63,6 +65,16 @@ async function run(){
                 res.status(201).json({message:'dodano druzyne', id: result.insertedId});
             } catch (error){
                 res.status(500).json({error:"blad zapisu do baaski"});
+            }
+        })
+        //startowanie sesji
+        app.post('/host/game_session', async(req,res)=>{
+            try{
+                const newGame = req.body;
+                const result = await game_session.insertOne(newGame)
+                res.status(201).json({message:"utworzono sesje gry", id: result.insertedId})
+            } catch (error){
+                res.status(500).json({error:"blad zapisu do baski"});
             }
         })
         //dodawanie punktow
@@ -82,13 +94,12 @@ async function run(){
                 res.status(500).json({error: "blad serwera podczas aktulizacji"});
             }
         });
-        //wyniki
-        app.get("/host/questions", async(req,res)=>{
+        app.get("/host/teams", async(req,res)=>{
             try{
-                const data = await teams.find({}).toArray();
-                res.status(200).json(data);
-            } catch (error){
-                res.status(500).json({error:"blad pobierania"});
+              const data = await teams.find({}).toArray();
+              res.status(200).json(data);
+              } catch (error){
+               res.status(500).json({error:"blad pobierania"});
             }
         });
         //pobieranie excel to json

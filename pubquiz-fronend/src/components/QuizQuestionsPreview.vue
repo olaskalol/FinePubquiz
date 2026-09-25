@@ -1,3 +1,7 @@
+!--wyświetlanie pytań quizu
+To do:
+- źle wyświetla pytania i trzeba pomyśleć jak powinien wyglądać podgląd
+-->
 <script setup lang="ts">
 import type {Question} from '../types';
 import {ref} from 'vue';
@@ -20,9 +24,7 @@ async function fetchQuestions() {
 }
 
 defineExpose({ fetchQuestions });
-
 </script>
-
 
 <template>
   <div>
